@@ -83,18 +83,45 @@ bool readIncident(Incident& inc) {
 int main() {
     Incident incidents[MAX_INCIDENTS];
     int incidentCount = 0;
+    int choice = -1;
 
     std::cout << "=== Incident Manager (Input & Validation Module) ===\n";
-    Incident tempIncident;
 
-    if (readIncident(tempIncident)) {
-        if (validateIncident(tempIncident, incidents, incidentCount)) {
-            if (incidentCount < MAX_INCIDENTS) {
-                incidents[incidentCount] = tempIncident;
-                ++incidentCount;
-                std::cout << "Incident validated and added successfully (total: "
-                          << incidentCount << ").\n";
+    while (true) {
+        std::cout << "\n--- Menu ---\n";
+        std::cout << "1. Add new incident\n";
+        std::cout << "0. Exit\n";
+        std::cout << "Select an option: ";
+
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Input error: Please enter 1 or 0.\n";
+            continue;
+        }
+
+        if (choice == 0) {
+            std::cout << "Exiting Incident Manager. Total incidents stored: "
+                      << incidentCount << ".\n";
+            break;
+        } else if (choice == 1) {
+            if (incidentCount >= MAX_INCIDENTS) {
+                std::cout << "Storage error: Maximum limit of "
+                          << MAX_INCIDENTS << " incidents reached.\n";
+                continue;
             }
+
+            Incident tempIncident;
+            if (readIncident(tempIncident)) {
+                if (validateIncident(tempIncident, incidents, incidentCount)) {
+                    incidents[incidentCount] = tempIncident;
+                    ++incidentCount;
+                    std::cout << "Incident validated and added successfully (total: "
+                              << incidentCount << ").\n";
+                }
+            }
+        } else {
+            std::cout << "Invalid option. Please enter 1 or 0.\n";
         }
     }
 
