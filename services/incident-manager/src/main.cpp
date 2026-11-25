@@ -36,44 +36,44 @@ bool isValidSeverity(const std::string& severity) {
 
 bool validateIncident(const Incident& inc, const Incident incidents[], int count) {
     if (inc.id <= 0) {
-        std::cout << "Помилка валідації: id має бути додатним цілим числом.\n";
+        std::cout << "Validation error: ID must be a positive integer.\n";
         return false;
     }
     if (isDuplicateId(incidents, count, inc.id)) {
-        std::cout << "Помилка валідації: інцидент із таким id вже існує.\n";
+        std::cout << "Validation error: Incident with this ID already exists.\n";
         return false;
     }
     if (inc.source.empty()) {
-        std::cout << "Помилка валідації: джерело (source) не може бути порожнім.\n";
+        std::cout << "Validation error: Source cannot be empty.\n";
         return false;
     }
     if (!isValidCategory(inc.category)) {
-        std::cout << "Помилка валідації: неприпустима категорія. Дозволені: SIGNAL, OVERLOAD, DEVICE_OFFLINE, DATA_ERROR.\n";
+        std::cout << "Validation error: Invalid category. Allowed: SIGNAL, OVERLOAD, DEVICE_OFFLINE, DATA_ERROR.\n";
         return false;
     }
     if (!isValidSeverity(inc.severity)) {
-        std::cout << "Помилка валідації: неприпустимий рівень (severity). Дозволені: INFO, WARNING, CRITICAL.\n";
+        std::cout << "Validation error: Invalid severity. Allowed: INFO, WARNING, CRITICAL.\n";
         return false;
     }
     return true;
 }
 
 bool readIncident(Incident& inc) {
-    std::cout << "Введіть ID інциденту (ціле число > 0): ";
+    std::cout << "Enter incident ID (integer > 0): ";
     if (!(std::cin >> inc.id)) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Помилка введення: очікувалося ціле число для ID.\n";
+        std::cout << "Input error: Expected an integer for ID.\n";
         return false;
     }
 
-    std::cout << "Введіть джерело (source, наприклад router-1): ";
+    std::cout << "Enter source (e.g., router-1): ";
     std::cin >> inc.source;
 
-    std::cout << "Введіть категорію (SIGNAL / OVERLOAD / DEVICE_OFFLINE / DATA_ERROR): ";
+    std::cout << "Enter category (SIGNAL / OVERLOAD / DEVICE_OFFLINE / DATA_ERROR): ";
     std::cin >> inc.category;
 
-    std::cout << "Введіть рівень (INFO / WARNING / CRITICAL): ";
+    std::cout << "Enter severity (INFO / WARNING / CRITICAL): ";
     std::cin >> inc.severity;
 
     inc.resolved = false;
@@ -84,7 +84,7 @@ int main() {
     Incident incidents[MAX_INCIDENTS];
     int incidentCount = 0;
 
-    std::cout << "=== Incident Manager (базовий модуль валідації) ===\n";
+    std::cout << "=== Incident Manager (Input & Validation Module) ===\n";
     Incident tempIncident;
 
     if (readIncident(tempIncident)) {
@@ -92,7 +92,7 @@ int main() {
             if (incidentCount < MAX_INCIDENTS) {
                 incidents[incidentCount] = tempIncident;
                 ++incidentCount;
-                std::cout << "Інцидент успішно пройшов валідацію та доданий (всього: "
+                std::cout << "Incident validated and added successfully (total: "
                           << incidentCount << ").\n";
             }
         }
