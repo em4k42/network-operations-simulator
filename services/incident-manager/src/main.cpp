@@ -87,6 +87,18 @@ bool readIncident(Incident& inc) {
     return true;
 }
 
+int countOpenWarningsBySource(const Incident incidents[], int count, const std::string& source) {
+    int openWarnings = 0;
+    for (int i = 0; i < count; ++i) {
+        if (!incidents[i].resolved &&
+            incidents[i].severity == "WARNING" &&
+            incidents[i].source == source) {
+            ++openWarnings;
+        }
+    }
+    return openWarnings;
+}
+
 void showOpenIncidents(const Incident incidents[], int count) {
     int openCount = 0;
     std::cout << "\n--- Open Incidents ---\n";
@@ -172,6 +184,17 @@ int main() {
                 if (validateIncident(tempIncident, incidents, incidentCount)) {
                     incidents[incidentCount] = tempIncident;
                     ++incidentCount;
+
+                    if (incidents[incidentCount - 1].severity == "WARNING") {
+                        int openWarnings = countOpenWarningsBySource(incidents, incidentCount, incidents[incidentCount - 1].source);
+                        if (openWarnings == 3) {
+                            incidents[incidentCount - 1].severity = "CRITICAL";
+                            std::cout << "Escalation: 3rd open WARNING for source '"
+                                      << incidents[incidentCount - 1].source
+                                      << "'. Severity automatically upgraded to CRITICAL.\n";
+                        }
+                    }
+
                     std::cout << "Incident validated and added successfully (total: "
                               << incidentCount << ").\n";
                 }
