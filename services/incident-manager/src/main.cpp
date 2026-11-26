@@ -12,6 +12,11 @@ struct Incident {
     bool resolved;
 };
 
+void clearInputBuffer() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
 bool isDuplicateId(const Incident incidents[], int count, int id) {
     for (int i = 0; i < count; ++i) {
         if (incidents[i].id == id) {
@@ -61,23 +66,74 @@ bool validateIncident(const Incident& inc, const Incident incidents[], int count
 bool readIncident(Incident& inc) {
     std::cout << "Enter incident ID (integer > 0): ";
     if (!(std::cin >> inc.id)) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        clearInputBuffer();
         std::cout << "Input error: Expected an integer for ID.\n";
         return false;
     }
+    clearInputBuffer();
 
     std::cout << "Enter source (e.g., router-1): ";
-    std::cin >> inc.source;
+    std::getline(std::cin, inc.source);
 
     std::cout << "Enter category (SIGNAL / OVERLOAD / DEVICE_OFFLINE / DATA_ERROR): ";
     std::cin >> inc.category;
+    clearInputBuffer();
 
     std::cout << "Enter severity (INFO / WARNING / CRITICAL): ";
     std::cin >> inc.severity;
+    clearInputBuffer();
 
     inc.resolved = false;
     return true;
+}
+
+void showOpenIncidents(const Incident incidents[], int count) {
+    int openCount = 0;
+    std::cout << "\n--- Open Incidents ---\n";
+    for (int i = 0; i < count; ++i) {
+        if (!incidents[i].resolved) {
+            std::cout << "ID: " << incidents[i].id
+                      << " | Source: " << incidents[i].source
+                      << " | Category: " << incidents[i].category
+                      << " | Severity: " << incidents[i].severity << "\n";
+            ++openCount;
+        }
+    }
+
+    if (openCount == 0) {
+        std::cout << "No open incidents found.\n";
+    }
+    std::cout << "Open incidents: " << openCount << " | Total incidents: " << count << "\n";
+}
+
+void closeIncidentById(Incident incidents[], int count) {
+    if (count == 0) {
+        std::cout << "No incidents available to close.\n";
+        return;
+    }
+
+    int targetId;
+    std::cout << "Enter incident ID to close: ";
+    if (!(std::cin >> targetId)) {
+        clearInputBuffer();
+        std::cout << "Input error: Expected an integer for ID.\n";
+        return;
+    }
+    clearInputBuffer();
+
+    for (int i = 0; i < count; ++i) {
+        if (incidents[i].id == targetId) {
+            if (incidents[i].resolved) {
+                std::cout << "Incident ID " << targetId << " is already closed.\n";
+            } else {
+                incidents[i].resolved = true;
+                std::cout << "Incident ID " << targetId << " has been closed.\n";
+            }
+            return;
+        }
+    }
+
+    std::cout << "Incident with ID " << targetId << " not found.\n";
 }
 
 int main() {
@@ -85,20 +141,20 @@ int main() {
     int incidentCount = 0;
     int choice = -1;
 
-    std::cout << "=== Incident Manager (Input & Validation Module) ===\n";
-
     while (true) {
-        std::cout << "\n--- Menu ---\n";
+        std::cout << "\n=== INCIDENT MANAGER ===\n\n";
         std::cout << "1. Add new incident\n";
-        std::cout << "0. Exit\n";
+        std::cout << "2. Show open incidents\n";
+        std::cout << "3. Close incident by ID\n";
+        std::cout << "0. Exit\n\n";
         std::cout << "Select an option: ";
 
         if (!(std::cin >> choice)) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Input error: Please enter 1 or 0.\n";
+            clearInputBuffer();
+            std::cout << "Input error: Please enter 1, 2, 3, or 0.\n";
             continue;
         }
+        clearInputBuffer();
 
         if (choice == 0) {
             std::cout << "Exiting Incident Manager. Total incidents stored: "
@@ -120,8 +176,12 @@ int main() {
                               << incidentCount << ").\n";
                 }
             }
+        } else if (choice == 2) {
+            showOpenIncidents(incidents, incidentCount);
+        } else if (choice == 3) {
+            closeIncidentById(incidents, incidentCount);
         } else {
-            std::cout << "Invalid option. Please enter 1 or 0.\n";
+            std::cout << "Invalid option. Please enter 1, 2, 3, or 0.\n";
         }
     }
 
